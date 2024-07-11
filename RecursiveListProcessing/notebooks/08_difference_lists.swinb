@@ -1,0 +1,65 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Lesson 4.2 - Difference Lists
+</div>
+
+<div class="nb-cell markdown" name="md4">
+A difference list is a data structure designed for one specific purpose: to add elements to the __end__ of a list. 
+The idea itself is simple and, in the C language, it boils down to having a separate pointer to the last element of the list. Then you can use this pointer to add something to the end of the list. In Prolog, there are no pointers, but a variable can play the role of a pointer.
+
+The name "difference list" comes from representing a list as the difference between two lists. For example, the list =|[a, b, c]|= can be equivalently represented by all the following pairs of lists:
+
+  - =|[a, b, c, d, e]|= minus =|[d, e]|=
+  - =|[a, b, c, d, e, f]|= minus =|[d, e, f]|=
+  - =|[a, b, c]|= minus =|[]|=
+  - =|[a, b, c | [d, e, f, g]]|= minus =|[d, e, f, g]|=
+  - =|[a, b, c | []] |= minus =|[]|=
+  - =|[a, b, c | End]|= minus =|End|=
+</div>
+
+<div class="nb-cell markdown" name="md8">
+Out of all these forms, the last one is the most general, and it is this form that we will rely on. The variable =|End|= acts as the aforementioned pointer to the end of the list. If we unify it with another list, for example, =|End = [d, e]|=, magically the first list will become =|[a, b, c, d, e]|=.
+</div>
+
+<div class="nb-cell query" name="q2">
+List = [a,b,c|End], End = [d,e]
+</div>
+
+<div class="nb-cell markdown" name="md5">
+However, in this way, =|List|= has ceased to be a difference list. Ultimately, every difference list has to contain a pointer:
+</div>
+
+<div class="nb-cell query" name="q3">
+List = [a,c,d|End1], End1 = [d,e|End2]
+</div>
+
+<div class="nb-cell markdown" name="md6">
+In this way, we can continuously add elements by manipulating =|End2|=. To convert a difference list into a regular list, all we need to do is unify its pointer to the last element with an empty list:
+</div>
+
+<div class="nb-cell query" name="q4">
+Listl = [a,b,c|End], End = []
+</div>
+
+<div class="nb-cell markdown" name="md7">
+To recap: a difference list is always represented by two elements - a list and a variable that acts as its tail. With this in mind, we can write and understand the addition of difference lists:
+</div>
+
+<div class="nb-cell program" name="p1">
+append_diff_lists(L1-E1,E1-E2,L1-E2).
+</div>
+
+<div class="nb-cell markdown" name="md9">
+In the above code, the =|-|= operator is used to combine two elements into a pair of a difference list, e.g., =|[a,b,c|End]-End|= is a difference list with three elements `a`, `b` and `c`. You can test the predicate below:
+</div>
+
+<div class="nb-cell query" name="q1">
+append_diff_lists([a,b,c|E1]-E1, [d,e|E2]-E2, Result)
+</div>
+
+<div class="nb-cell markdown" name="md10">
+*Assignment:* Understand this, my friend :)
+</div>
+
+</div>

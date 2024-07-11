@@ -1,0 +1,323 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Lesson 4.1: Recursive Operations on Lists
+</div>
+
+<div class="nb-cell markdown" name="md2">
+We continue the topic from last week — operations on lists. This time, we will focus on recursive operations.
+
+Below, as a reminder, there are predicates for calculating the length of a list and adding two lists together.
+</div>
+
+<div class="nb-cell program" name="p1">
+list_length([], 0).
+list_length([_|T], L) :-
+    list_length(T, PL),
+    L is PL + 1.
+
+list_concat([], L2, L2).
+list_concat([H|L1], L2, [H|L3]) :-
+    concat(L1, L2, L3).
+</div>
+
+<div class="nb-cell markdown" name="md3">
+In Prolog, both of these predicates are built-in. The first one is `length/2`, and the second one is `append/3`. You can easily verify this by using the `listing/1 predicate.
+</div>
+
+<div class="nb-cell query" name="q1">
+listing(length/2).
+</div>
+
+<div class="nb-cell markdown" name="md4">
+Brave individuals can check how the source code of `length/2` looks, but it may be scary. The built-in implementation takes care of some border cases.
+</div>
+
+<div class="nb-cell markdown" name="md5">
+## Reversible Computation
+</div>
+
+<div class="nb-cell markdown" name="md6">
+One of the greatest advantages of Prolog compared to other languages is the natural tendency of predicates to be reversible, meaning that the input and output of a predicate can be interchanged. In this way, in Peano numbers, it was possible to define subtraction using the addition predicate. The same concept applies to lists, so since:
+</div>
+
+<div class="nb-cell query" name="q2">
+length([a,b,c], N)
+</div>
+
+<div class="nb-cell markdown" name="md7">
+can be reversed to:
+</div>
+
+<div class="nb-cell query" name="q3">
+length(L, 3)
+</div>
+
+<div class="nb-cell markdown" name="md8">
+This is the standard way to create a list of new variables with the desired length.
+
+You can go even further:
+</div>
+
+<div class="nb-cell query" name="q4">
+length(L, N)
+</div>
+
+<div class="nb-cell markdown" name="md9">
+Please check the result, but the above construction does not seem really useful ;)
+</div>
+
+<div class="nb-cell markdown" name="md10">
+### Removing by Adding
+</div>
+
+<div class="nb-cell markdown" name="md11">
+So far, we've been able to add elements only to the front of the list. Removal works in the same way. Please take a look below at how to remove two elements:
+</div>
+
+<div class="nb-cell query" name="q5">
+List = [a,b,c], [_,_|SmallerList] = List
+</div>
+
+<div class="nb-cell markdown" name="md12">
+`append/3` may achieve the same result:
+</div>
+
+<div class="nb-cell query" name="q6">
+List = [a,b,c], append([_,_],SmallerList,List)
+</div>
+
+<div class="nb-cell markdown" name="md13">
+We can remove elements from the end:
+</div>
+
+<div class="nb-cell query" name="q7">
+List = [a,b,c], append(SmallerList,[_,_],List)
+</div>
+
+<div class="nb-cell markdown" name="md14">
+Again, we can go further:
+</div>
+
+<div class="nb-cell query" name="q8">
+List = [a,b,c], append(L1,L2,List)
+</div>
+
+<div class="nb-cell markdown" name="md15">
+Or just go crazy:
+</div>
+
+<div class="nb-cell query" name="q9">
+append(L1,L2,L3)
+</div>
+
+<div class="nb-cell markdown" name="md16">
+Again, the last one is not really useful… 
+</div>
+
+<div class="nb-cell markdown" name="md17">
+## Recursive Patterns
+</div>
+
+<div class="nb-cell markdown" name="md18">
+There are several classical ways of processing lists that you should familiarize yourself with. 
+They roughly correspond to the map/filter/reduce operations from previous lessons.
+
+#### Map
+
+Mapping is the simplest type of recursive operation, and it only requires two clauses:
+
+1. The case for an empty list, which simply results in 'copying' the list to the output.
+2. The case for a non-empty list, which translates an element into a new element and 'transfers' it to a new list.
+</div>
+
+<div class="nb-cell program" name="p2">
+% 1. empty list
+map([], []).
+% 2. translating the head
+map([H1|T1], [H2|T2]) :-
+    translate(H1,H2),
+    map(T1, T2).
+
+translate(UpperCase, LowerCase) :- 
+    string_lower(UpperCase, LowerCase).
+</div>
+
+<div class="nb-cell markdown" name="md19">
+The example above translates uppercase letters into their lowercase counterparts. `string_lower/2` is a built-in Prolog predicate just for this purpose.
+</div>
+
+<div class="nb-cell query" name="q10">
+map(['P','r','o','L','o','g'], X).
+</div>
+
+<div class="nb-cell markdown" name="md20">
+On a side note: in SWI-Prolog, double quotes =|"|= represent a `string`. Older Prolog courses may rightly teach that a string is just a list of characters, but in the new SWI-Prolog, this is no longer true. You can find more information in the documentation. In short, if you want a list of characters, you should use "backticks" (backquote) as shown in the example below:
+</div>
+
+<div class="nb-cell query" name="q11">
+length(`prolog`, X).
+</div>
+
+<div class="nb-cell markdown" name="md21">
+### Filter
+</div>
+
+<div class="nb-cell markdown" name="md22">
+Filtering is an even simpler operation but requires more clauses than map. You need three clauses:
+
+1. The case for an empty list (the same as in map).
+2. The case for the head of the list that satisfies the filtering condition — such an element is transferred to the result list.
+3. The case for the head of the list that doesn't satisfy the filtering condition - such an element is ignored
+</div>
+
+<div class="nb-cell program" name="p3">
+% 1. empty list is always the same
+filter([], []).
+% 2. head satisfies a condition
+filter([H|T1], [H|T2]) :-
+    satisfies_condition(H),
+    filter(T1,T2).
+% 3. head does not satisfy the condition
+filter([H|T1], T2) :-
+    \+ satisfies_condition(H),
+    filter(T1,T2).
+
+% An example:
+% We are looking for unbounded variables
+% var/1 is a built-in predicate
+satisfies_condition(X) :- var(X).
+</div>
+
+<div class="nb-cell markdown" name="md24">
+Try our `filter` below:
+</div>
+
+<div class="nb-cell query" name="q13">
+filter([A,1,B,d,c],X).
+</div>
+
+<div class="nb-cell markdown" name="md23">
+On a side note, besides var/1, there are built-in predicates such as:
+  - number/1 — checks if something is a number
+  - atom/1 — checks if something is an atom, which is essentially an identifier
+  - string/1 — you can guess, probably…
+  - is_list/1 — which checks if something is a list. 
+
+These predicates are handy for type-checking and validation in Prolog.
+
+</div>
+
+<div class="nb-cell markdown" name="md25">
+### Reduce
+</div>
+
+<div class="nb-cell markdown" name="md26">
+The most complex of these three schemes is the fold operation, as it requires an additional argument called an accumulator (acc), which stores the accumulated results. It requires three clauses:
+
+1. An empty list clause, which is parameterized with three arguments, copies the accumulator value to the output.
+2. A non-empty list clause, parameterized with three arguments, updates the accumulator based on the current head of the list and passes the new value further.
+3. A two-argument clause that serves as a facade and calls its three-argument version with the initial accumulator value.
+</div>
+
+<div class="nb-cell markdown" name="md27">
+Below are two simple examples (summing and reversing a list) using this recursive pattern:
+</div>
+
+<div class="nb-cell program" name="p4">
+% 1. empty list — copy accumulator to output
+list_sum([], Acc, Acc).
+% 2. update accumulator
+list_sum([H|T], Acc, Result) :-
+    NewAcc is H + Acc,
+    list_sum(T, NewAcc, Result).
+% 3. a facade to provide the accumulator value
+list_sum(List, Result) :-
+    list_sum(List, 0, Result).
+
+list_reverse([], Acc, Acc).
+% Every element is put at left beginning of the accumulator
+% Effectively, the last element in the list will become first
+list_reverse([H|T], Acc, Result) :-
+    NewAcc = [H|Acc],
+    list_reverse(T, NewAcc, Result).
+list_reverse(List, Result) :-
+    list_reverse(List, [], Result).
+</div>
+
+<div class="nb-cell markdown" name="md28">
+Klasycznie, przykładowe zapytania, żeby przetestować działanie:
+</div>
+
+<div class="nb-cell query" name="q14">
+list_sum([1,2,3],X)
+</div>
+
+<div class="nb-cell query" name="q12">
+list_reverse([1,2,3],X).
+</div>
+
+<div class="nb-cell markdown" name="md29">
+On a side note, =|list_reverse|= is capable of reversing lists when provided as both the first and second arguments. However, =|list_sum|= is not reversible (you can verify this). This is due to the `is` operator, which is irreversible.
+</div>
+
+<div class="nb-cell markdown" name="md30">
+### Other
+</div>
+
+<div class="nb-cell markdown" name="md31">
+Of course, the above patterns do not exhaust all possibilities. A simple example is checking the properties of a whole list. The previous patterns always produced some results - what if we only want to check a certain property of a list? If the condition can be checked by analyzing individual elements, the situation is relatively simple:
+
+1. If the condition is satisfied for an empty list, provide the appropriate clause.
+2. Define whether the condition is satisfied for the head of the list.
+  - If it is satisfied, we're done.
+  - Otherwise, check the condition for the tail of the list.
+</div>
+
+<div class="nb-cell program" name="p5">
+% This predicate checks if something is an element of a list
+% 1. nothing is an element of an empty list, so we can ignore this case.
+%    In theory we could write: is_element_of_list(_, []) :- false.
+%    to get the same effect.
+%    
+% 2. if the condition is satisfied, we finish
+%    if El is head of a list, it is its element 
+is_element_of_list(El, [El|_]).
+
+% 3. if the condition is not satisfied, we check the tail
+is_element_of_list(El, [H|T]) :-
+    El \= H,
+    is_element_of_list(El, T).
+</div>
+
+<div class="nb-cell markdown" name="md32">
+Now a test!
+</div>
+
+<div class="nb-cell query" name="q15">
+is_element_of_list(a, [l,a,b,o,r,a,t,o,r,y]).
+</div>
+
+<div class="nb-cell markdown" name="md33">
+On a side note: the above definition is correct for sets, but it has limited utility in the case of lists. The built-in predicate `member/2` works the same way, but it omits the line 12: =|El \= H|=, from the above code. This difference is crucial when we compare two queries:
+
+In the first query using member/2, it correctly returns `true` because it finds the element ``1 in the list. However, in the second query using your custom predicate =|is_element_of_list|=, it incorrectly returns `false` because of the additional inequality check, which prevents it from finding the element. The built-in member/2 predicate is more appropriate for working with lists in Prolog.
+</div>
+
+<div class="nb-cell query" name="q16">
+is_element_of_list(X, [l,a,b,o,r,a,t,o,r,y]).
+</div>
+
+<div class="nb-cell query" name="q17">
+member(X, [l,a,b,o,r,a,t,o,r,i,u,m]).
+</div>
+
+<div class="nb-cell markdown" name="md34">
+If the difference isn't clear, I'll state it directly: the member/2 definition allows for iterating through the elements of a list!
+</div>
+
+<div class="nb-cell query" name="q18">
+forall(member(X, [t,h,a,t,"'",s," ", a, l, l," ",f,o,l,k,s]), write(X))
+</div>
+
+</div>

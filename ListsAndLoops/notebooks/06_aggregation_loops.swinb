@@ -1,0 +1,250 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Lesson 3.2 - Aggregation and Loops
+
+Today's lesson will return to the roots — to treating Prolog as a language for describing knowledge bases and then querying them. The knowledge acquired in previous laboratories will be used to build more complex queries and predicates. Once again, we will define a  knowledge base, this time a bit more elaborate than the family.
+
+Before we proceed, we will address one last topic – aggregating queries.
+</div>
+
+<div class="nb-cell markdown" name="md2">
+## Aggregation 
+
+So far, each query concerned a single entity — whether a given object is in a specific relationship, or if there exists an object that satisfies a given predicate. When we wanted to inquire about a larger number of objects, such as "Which objects satisfy a specific relation?" we had to use the `next` button or create a loop using `write` and `fail`. Both of these approaches, however, do not allow processing all such objects at once — we always deal with only one at a time. Therefore, in Prolog, so-called aggregation queries were introduced, the result of which is a list of objects that satisfy a given query.
+
+Let's have a look at the knowledge base of the biggest universities in Poland.
+</div>
+
+<div class="nb-cell program" data-background="true" name="p1">
+% university(Name, City, Number of Students, Type, Domain, Year of Foundation).
+university('University of Warsaw', 'Warsaw', public, classical, 36510, 1816).
+university('Jagiellonian University', 'Krakow', public, classical, 34002, 1364).
+university('Adam Mickiewicz University', 'Poznan', public, classical, 29987, 1611).
+university('WSB Merito University in Poznan', 'Poznan', private, economics, 25086, 1994).
+university('University of Lodz', 'Lodz', public, classical, 23284, 1945).
+university('Warsaw University of Technology', 'Warsaw', public, technical, 22034, 1826).
+university('Wroclaw University of Science and Technology', 'Wroclaw', public, technical, 21979, 1945).
+university('University of Wroclaw', 'Wroclaw', public, classical, 21247, 1702).
+university('University of Gdansk', 'Gdansk', public, classical, 19735, 1970).
+university('University of Silesia in Katowice', 'Katowice', public, classical, 19492, 1968).
+university('AGH University of Krakow', 'Krakow', public, technical, 18468, 1913).
+university('WSB Merito University in Wroclaw', 'Wroclaw', private, economics, 18295, 1998).
+
+
+add(X1, X2, R) :- R is X1 + X2.
+average(List, Average) :- foldl(add, List, 0, Sum), length(List, Length), Average is Sum / Length.
+</div>
+
+<div class="nb-cell markdown" name="md3">
+Now, for example, we would like to find out the average number of students attending universities founded after the Second World War. How can we do that? Here, a special predicate called `findall/3` comes to our aid.
+</div>
+
+<div class="nb-cell query" name="q1">
+findall(NumberOfStudents, (university(_, _, _, _, NumberOfStudents, Year), Year &gt; 1940), Universities), average(Universities, Average).
+</div>
+
+<div class="nb-cell markdown" name="md4">
+The operation of the query is simple:
+
+1. The first argument of the `findall` specifies what the list of interest should consist of.
+2. The second argument is a query specifying how to find a single element of the list. It can be any query and contain more than one atom, but in that case, it must be enclosed in an additional pair of parentheses.
+3. The third argument is the variable that will store the result — the list.
+4. Calculating the average is just a recap of list operations.
+
+A slightly more complex predicate is the `bagof/3` predicate. Please compare the two queries below:
+</div>
+
+<div class="nb-cell query" name="q2">
+findall(City, university(_, City, _, _, _, _), Cities).
+</div>
+
+<div class="nb-cell query" name="q3">
+bagof(City, university(_, City, _, _, _, _), Cities).
+</div>
+
+<div class="nb-cell markdown" name="md5">
+If the difference is unclear, please copy any item in the knowledge base, e.g., make the AGH appear twice. Then please repeat the query:
+</div>
+
+<div class="nb-cell query" name="q4">
+bagof(City, university(_, City, _, _, _, _), Cities).
+</div>
+
+<div class="nb-cell markdown" name="md6">
+This time, one of the lists contains the city 'Krakow' twice… `bagof` finds lists of objects for which the queries return *the same* results, except for the variable that is supposed to end up in the result list. In this case, `bagof` will group the results into *bags* if they have the same name, type, domain, number of students and the year of foundation. As this is not very useful, `bagof` allows ignoring some attributes while grouping.
+</div>
+
+<div class="nb-cell query" name="q5">
+bagof(City, (A, B, C)^university(A, City, Type, Domain, B, C), Cities).
+</div>
+
+<div class="nb-cell markdown" name="md7">
+The variables within parentheses before the caret `^` indicate that `bagof` should ignore differences in the values. The query above grouped universities by their type and domain only. If we were to ignore all the attributes, the `bagof` would imitate the `findall` behavior: 
+</div>
+
+<div class="nb-cell query" name="q13">
+bagof(City, (A, B, C, D, E)^university(A, City, B, C, D, E), Cities).
+</div>
+
+<div class="nb-cell markdown" name="md19">
+Another (more realistic?) example would to group the universities by their location: 
+</div>
+
+<div class="nb-cell query" name="q6">
+bagof(Name, (A, B, C, D)^university(Name, Miasto, A, B, C, D), Names).
+</div>
+
+<div class="nb-cell markdown" name="md9">
+### Exercises
+
+  1. Try to use the `setof/3` predicate. How is it different from  `bagof/3`?
+</div>
+
+<div class="nb-cell query" name="q7">
+
+</div>
+
+<div class="nb-cell markdown" name="md10">
+## Loops
+
+So far, we have only used simple, "poor man's" alternatives to loops based on the `fail` construct. In Prolog, there are two built-in types of loops: `foreach` and `forall`.
+
+Below is an example of a query that prints all the universities in the database based on `fail`.
+
+You should notice the `format/2` predicate, which works like the `printf` function known from C. It takes a format string as its first argument and a list of elements to replace placeholders with tildes `~` as the second argument. You can read more about formatting in the [documentation](https://www.swi-prolog.org/pldoc/man?predicate=format/2).
+</div>
+
+<div class="nb-cell query" name="q8">
+university(Name, City, Type, Domain, NStudents, YearFound), format(
+'name: ~w 
+\t- location: ~w, 
+\t- domain: ~w, 
+\t- type: ~w, 
+\t- number of students: ~w, 
+\t- founded in: ~w\n', [Name, City, Type, Domain, NStudents, YearFound]), fail.
+</div>
+
+<div class="nb-cell markdown" name="md11">
+Now, an alternative approach would to be to use `findall` and `maplist`:
+</div>
+
+<div class="nb-cell program" name="p2">
+print_university(X, X) :- 
+    X = university(Name, City, Type, Domain, NStudents, YearFound),
+    format(
+'name: ~w 
+\t- location: ~w, 
+\t- domain: ~w, 
+\t- type: ~w, 
+\t- number of students: ~w, 
+\t- founded in: ~w\n', [Name, City, Type, Domain, NStudents, YearFound]).
+</div>
+
+<div class="nb-cell query" name="q9">
+findall(university(Name, City, Type, Domain, NStudents, YearFound), 
+        university(Name, City, Type, Domain, NStudents, YearFound),
+        Universities),
+maplist(print_university, Universities, _).
+</div>
+
+<div class="nb-cell markdown" name="md12">
+While this approach may seem to work, it can be somewhat cumbersome. We need to: 
+
+1. add a binary predicate `print_university` just to produce a side effect. 
+2. build a list of elements using an aggregation query beforehand, even when we don't always need such a list and it is just a waste of the memory.
+</div>
+
+<div class="nb-cell markdown" name="md8">
+That's why we love the loops! Please compare the two queries below:
+</div>
+
+<div class="nb-cell query" name="q10">
+foreach(
+	university(Name, City, Type, Domain, NStudents, YearFound), 
+    format('name: ~w 
+\t- location: ~w, 
+\t- domain: ~w, 
+\t- type: ~w, 
+\t- number of students: ~w, 
+\t- founded in: ~w\n', [Name, City, Type, Domain, NStudents, YearFound])
+).
+</div>
+
+<div class="nb-cell query" name="q11">
+forall(
+	university(Name, City, Type, Domain, NStudents, YearFound), 
+    format('name: ~w 
+\t- location: ~w, 
+\t- domain: ~w, 
+\t- type: ~w, 
+\t- number of students: ~w, 
+\t- founded in: ~w\n', [Name, City, Type, Domain, NStudents, YearFound])
+).
+</div>
+
+<div class="nb-cell markdown" name="md13">
+Both predicates take the same two arguments:
+1. =Condition=: a query specyfing the elements we would like to iterate through.
+2. =Action=: a query performed for each query result.
+</div>
+
+<div class="nb-cell markdown" name="md14">
+### `forall` vs `foreach` — what's the difference?
+</div>
+
+<div class="nb-cell markdown" name="md17">
+Look at the following query:
+</div>
+
+<div class="nb-cell query" name="q12">
+length(List, 5),
+format('Before the loop: ~w\n', [List]),
+foreach(between(1, 5, I), (
+	nth1(I, List, I) 
+)),
+format('After the loop: ~w\n', [List]).
+</div>
+
+<div class="nb-cell markdown" name="md18">
+Knowing how the lists work, it should possible to comprehend the query:
+
+- `length(List, 5)` creates a list containing 5 elements. By default, these are unique variables. It is equivalent to `List = [_, _, _, _, _]`.
+- `format('Before the loop: ~w\n', [List])` prints the list before executing the loop.
+- `between(1, 5, I)` is new. `between/3` behaves like the range function from Python, where the first and second arguments represent the left and right bounds of the range of numbers, e.g., ``foreach(between(1,5,I)`` is like ``for i in range(1,6):`` in Python.  
+- `nth1(I, List, X)` unifies the ``I``-th element of the ``List`` with ``X``, in this case `X = I`.
+- `format('After the loop: ~w\n', [List])` prints the list after the loop has been executed.
+
+#### Exercise
+
+Replace `foreach` with `forall` and observe how the results change.
+
+-----
+</div>
+
+<div class="nb-cell markdown" name="md15">
+At this point, you may be wondering how these two loops differ. If you hover your mouse over their names in the queries, you'll get hints:
+
+- _foreach/2: (autoload from aggregate): True if conjuction of results is true._ 
+- _forall/2: For all alternative bindings of Cond, Action can be proven._
+</div>
+
+<div class="nb-cell markdown" name="md16">
+In practical terms:
+
+- `foreach/2` creates a large query composed of the conjunction of all actions. In practice, you can think of it as working similarly to a combination of `findall/3` and `maplist/3`.
+
+- `forall/2`, on the other hand, checks the action for each result individually. In practice, this means that `forall/2` behaves like a loop based on `fail`.
+</div>
+
+<div class="nb-cell markdown" name="md20">
+The advantage of `forall` is its efficiency — it never creates any lists, works quickly, and is straightforward. However, the downside is that if the `Action` has some side effects (e.g., modifies the ``List`` variable, declared outside the loop), these effects will be rolled back after each `fail`. `forall/2` doesn't use `fail`, so this problem doesn't occur here. However, it is relatively more resource-intensive than its counterpart.
+
+## Practical conclusion:
+
+The difference between `foreach` and `forall` rarely matters, but with `foreach`, it's more difficult to inadvertently make mistakes. 
+
+*RULE OF THUMB*: use `foreach`, unless you have memory issues. 
+</div>
+
+</div>

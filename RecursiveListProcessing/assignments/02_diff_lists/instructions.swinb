@@ -1,0 +1,78 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Recursive Operations on Difference Lists
+</div>
+
+<div class="nb-cell markdown" name="md5">
+The goal of these exercises is to become aware of the differences between processing regular lists and difference lists. To successfully complete the tasks, you first need to define the predicate =|is_empty_diff|=, which checks whether a difference list is empty:
+</div>
+
+<div class="nb-cell program" data-background="true" name="p3">
+is_empty_diff(L-E) :- L == E.
+</div>
+
+<div class="nb-cell query" name="q2">
+% should be false
+is_empty_diff([a|T]-T).
+</div>
+
+<div class="nb-cell query" name="q3">
+% should be true
+is_empty_diff(T-T).
+</div>
+
+<div class="nb-cell markdown" name="md6">
+*Reminder*: `==/2` checks equality without unification.
+
+*Question*: why `==/2` instead of `=/2`? What would happen if the `=/2` has been used instead?
+</div>
+
+<div class="nb-cell markdown" name="md2">
+### 1. =|length_diff/2|=
+
+Define predicate =|length_diff/2|= counting number of elements in a difference list:
+
+==
+?- length_diff([1,2,3|E]-E,X).
+
+X = 3
+==
+</div>
+
+<div class="nb-cell program" name="p1">
+
+</div>
+
+<div class="nb-cell query" name="q1">
+length_diff([1,2,3|E]-E,X)
+</div>
+
+<div class="nb-cell markdown" name="md3">
+### 2. =|member_diff/2|=
+Define predicate =|member_diff/2|=, checking whether an element belongs to a difference list, e.g.,
+
+==
+?- member_diff(3,[1,2,3|E]-E).
+
+true
+
+?- member_diff(3,[1,2,4,5|E]-E).
+
+false
+==
+</div>
+
+<div class="nb-cell program" name="p2">
+
+</div>
+
+<div class="nb-cell query" name="q4">
+member_diff(3,[1,2,3|E]-E).
+</div>
+
+<div class="nb-cell markdown" name="md4">
+
+</div>
+
+</div>

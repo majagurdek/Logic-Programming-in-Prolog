@@ -1,0 +1,178 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Recursive Operations on Lists — Assignments
+</div>
+
+<div class="nb-cell markdown" name="md2">
+### 1. =|remove_element/3|=
+
+Write a recursive predicate =|remove_element/3|=, which removes the first occurrence of a given element from a list. For example, for the query =|remove_element(3, [1, 3, 2, 1, 2, 3], X)|=, the expected result is =|X = [1, 2, 1, 2, 3]|=.
+
+  - **Hint**: You can take inspiration from the predicate =|is_element_of_list/2|=.
+</div>
+
+<div class="nb-cell program" name="p1">
+
+</div>
+
+<div class="nb-cell query" name="q1">
+remove_element(3,[1,3,2,1,3,2],X)
+</div>
+
+<div class="nb-cell markdown" name="md3">
+### 2. =|remove_all_occurrences/3|=
+
+Write a recursive predicate =|remove_all_occurrences/3|= that removes all occurrences of a given element from a list. For example, for the query =|remove_all_occurrences(3, [1, 2, 3, 1, 2, 3], X)|=, the expected result is =|X = [1, 2, 1, 2]|=.
+
+  * **Hints**: =|is_element_of_list/2|= vs =|member/2|=.
+</div>
+
+<div class="nb-cell program" name="p3">
+
+</div>
+
+<div class="nb-cell query" name="q2">
+remove_all_occurrences(3,[1,2,3,1,2,3],X)
+</div>
+
+<div class="nb-cell markdown" name="md4">
+### 3. =|add_element/3|=
+
+Write a predicate =|add_element/3|= that adds an element to a list at any index, for example, =|add_element(3, [1, 2, 1, 2], X)|= should result in =|X = [3, 1, 2, 1, 2]|= or =|X = [1, 3, 2, 1, 2]|= or …
+
+  * **Hint**: Adding an element is the reverse of removing it.
+</div>
+
+<div class="nb-cell program" name="p4">
+
+</div>
+
+<div class="nb-cell query" name="q3">
+add_element(3, [1, 2, 1, 2], X)
+</div>
+
+<div class="nb-cell markdown" name="md5">
+### 4. =|palindrome/1|=
+</div>
+
+<div class="nb-cell markdown" name="md6">
+A list is a palindrome if its elements read the same from both the left and right. Write a predicate =|palindrome/1|= that checks if a list is a palindrome.
+
+  - **Hint**: use a predicate reversing a list.
+</div>
+
+<div class="nb-cell program" name="p5">
+
+</div>
+
+<div class="nb-cell query" name="q4">
+palindrome([y,o,b,a,n,a,n,a,b,o,y])
+</div>
+
+<div class="nb-cell markdown" name="md7">
+### 5. =|sublist/2|=
+
+List =|L2|= is a sublist of =|L1|= if it contains only elements from =|L1|= (not necessarily all of them) in the same order as in =|L1|=. Please write a predicate =|sublist/2|= that finds sublists for a given list. For the query =|sublist([a, b, c], X)|=, there are eight possible results, where =|X|= can be: =|[a, b, c]|=, =|[a, b]|=, =|[a, c]|=, =|[a]|=, =|[b, c]|=, =|[b]|=, =|[c]|=, =|[]|=.
+
+  * **Hint**: You should treat this as filtering, which can either keep or remove _any_ element.
+</div>
+
+<div class="nb-cell program" name="p7">
+
+</div>
+
+<div class="nb-cell query" name="q5">
+sublist([a,b,c],X).
+</div>
+
+<div class="nb-cell markdown" name="md8">
+### 6. =|cut_off/3|=
+Using predicates `length/2` and `append/3_` define two predicates: =|cut_off_left/3|= and =|cut_off_right/3|=, which removes a specified number of elements from the beginning/end of the list, e.g., =|cut_off_left(3,[1,2,3,4],X)|= should result in =|X=[4]|=. Similarly, =|cut_off_right(3,[1,2,3,4],X)|= would make =|X=[1]|=.
+</div>
+
+<div class="nb-cell program" name="p6">
+
+</div>
+
+<div class="nb-cell query" name="q6">
+cut_off_left(3,[1,2,3,4],X)
+</div>
+
+<div class="nb-cell query" name="q7">
+cut_off_right(3,[1,2,3,4],X).
+</div>
+
+<div class="nb-cell markdown" name="md9">
+### 7. =|contains_list/2|=
+
+Define a predicate =|contains_list/2|= that checks whether a list =|L1|= contains another list =|L2|=. For the query =|contains_list([1,2,3,4], [2,3])|=, it should return =|true|= because =|[2,3]|= is contained in =|[1,2,3,4]|=.
+
+  - **Note**: The main difference from =|sublist/2|= is that the elements in =|L2|= must appear consecutively in =|L1|=.
+  - **Hint**: Use the `append/2` predicate (not to be confused with `append/3`!)
+</div>
+
+<div class="nb-cell program" name="p8">
+
+</div>
+
+<div class="nb-cell query" name="q8">
+contains_list([1,2,3,4],X)
+</div>
+
+<div class="nb-cell markdown" name="md10">
+### 8. =|permutation/2|=
+
+Write a predicate =|permutation/2= that finds permutations of the given list (permutations have the same elements, but not necessarily in the same order). For the query =|permutation([d, o, g], X)|=, you will get =|X|= equal to =|[d, o, g]|=, =|[d, g, o]|=, =|[g, d, o]|=, =|[o, g, d]|=, =|[g, d, o]|=, =|[g, o, d]|=.
+
+	- **Hint 1**: use the `add/3` or `remove/3` predicates
+	- **Hint 2**: the permutation of a list is the permutation of its tail plus its head placed at any position.
+</div>
+
+<div class="nb-cell program" name="p9">
+
+</div>
+
+<div class="nb-cell query" name="q9">
+permutation([d,o,g],X)
+</div>
+
+<div class="nb-cell markdown" name="md11">
+### 9. =|split/3|=
+
+Write a predicate =|split/3|= that divides a list into two lists of approximately equal length, for example:
+
+    - =|split([1], L, P) gives L = [1], P = []|=
+    - =|split([1, 2], L, P) gives L = [1], P = [2]|=
+    - =|split([1, 2, 3], L, P) gives L = [1, 3], P = [2]|=
+    - =|split([1, 2, 3, 4], L, P) gives L = [1, 3], P = [2, 4]|=
+    - =|split([1, 2, 3, 4, 5], L, P) gives L = [1, 3, 5], P = [2, 4]|=
+
+
+</div>
+
+<div class="nb-cell program" name="p10">
+
+</div>
+
+<div class="nb-cell query" name="q10">
+split([1,2,3,4,5], L, P)
+</div>
+
+<div class="nb-cell markdown" name="md12">
+### 10. =|flat_list/2|=
+
+Write a predicate =|flat_list/2|= that flattens a nested list into a flat list, for example:
+
+  - =|flat_list([1, [3,4], [], 5, [6,[7,8]]], L)|= should result in =|L = [1, 3, 4, 5, 6, 7, 8]|=.
+</div>
+
+<div class="nb-cell program" name="p2">
+
+</div>
+
+<div class="nb-cell query" name="q11">
+flat_list([1, [3,4], [], 5, [6,[7,8]]], L)
+</div>
+
+</div>

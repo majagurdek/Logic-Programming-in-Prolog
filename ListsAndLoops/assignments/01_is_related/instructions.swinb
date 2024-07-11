@@ -1,0 +1,63 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Is Related 3.0
+</div>
+
+<div class="nb-cell markdown" name="md2">
+Below you can see again the same old knowledge base:
+</div>
+
+<div class="nb-cell program" data-background="true" name="p1">
+is_ancestor(X,Y) :- is_parent(X,Y).
+is_ancestor(X,Y) :- is_parent(Z,Y),
+                    is_ancestor(X,Z).
+
+is_related(X,Y) :- is_ancestor(Z,X),
+                   is_ancestor(Z,Y),
+    			   X \= Y.
+
+% is_parent(Parent, Child)
+is_parent(kate, robert).
+is_parent(kate, michael).
+is_parent(thomas, robert).
+is_parent(thomas, elisa).
+is_parent(robert, miriam).
+</div>
+
+<div class="nb-cell markdown" name="md3">
+Last time we have tried to improve the `is_related/2` via side effects (asserts).
+Clean Prolog code should avoid side effects, as they make the reasoning difficult and lead to unexpected errors.
+</div>
+
+<div class="nb-cell markdown" name="md5">
+## Mission
+
+Instead of dealing with new definitions for relatives, let's try to remove duplicates from the query's result. 
+Write a query that aggregates the relatives and prints them out without repetitions using a loop.
+
+- *Tip 1*: use a correct aggregation function to get an initial list, you can assume, `is_related/2` is already defined 
+- *Tip 2*: then clean up the list and remove duplicates
+  - mateusz - anna and mateusz - anna are obvious duplicates 
+  - mateusz - anna and anna - mateusz are also considered to be duplicates  
+- *Tip 3*: `sort/2` removes obvious duplicates
+- *Tip 4*: `@&lt;/2` operator operator compares two terms, e.g, `anna @&lt; mateusz` is true.
+</div>
+
+<div class="nb-cell query" name="q1">
+
+</div>
+
+<div class="nb-cell markdown" name="md6">
+Now, wrap it in the `all_relatives/1` predicate and put in the `is_related.pl` file. You can play below.
+</div>
+
+<div class="nb-cell program" name="p3">
+all_relatives(Relatives) :- fail.
+</div>
+
+<div class="nb-cell query" name="q2">
+
+</div>
+
+</div>

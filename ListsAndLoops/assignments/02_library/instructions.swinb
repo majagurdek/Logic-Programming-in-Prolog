@@ -1,0 +1,59 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Library
+
+Please take a look at the following database of a small but very cool book collection:
+</div>
+
+<div class="nb-cell program" data-background="true" name="p1">
+book(16, 'Flatland: A Romance of Many Dimensions', author('Edwin Abbott Abbott', 1838-1926), edition('Seel &amp; Co', 1884)). 
+book(28, 'R.U.R.', author('Karel Čapek', 1890-1938), edition('Oxford University Press', 1923)).
+book(29, 'Dashenka, or the Life of a Puppy', author('Karel Čapek', 1890-1938), edition('Allen &amp; Unwin', 1933)).
+book(34, 'The Woman in the Dunes', author('Kobo Abe', 1924-1993), edition('Berkley Publishing Corporation', 1965)).
+book(56, 'The Castle', author('Franz Kafka', 1883-1924), edition('Penguin Books', 1957)).
+book(87, 'The Histories of Gargantua and Pantagruel', author('Francois Rabelais', 1494-1553), edition('Penguin Books', 1955)).
+book(98, 'Memoirs Found in a Bathtub', author('Stanisław Lem', 1921-2006), edition('Seabury Press', 1973)).
+</div>
+
+<div class="nb-cell markdown" name="md2">
+# Missions
+
+Write queries corresponding to find:
+
+1. list of all the book authors without duplicates.
+2. list of book titles published after the death of their authors.
+3. list of pairs "&lt;author&gt; - &lt;list of their books&gt;", e.g., ``'Kobo Abe' - ['The Woman in the Dunes'] ``
+4. list of pairs of authors, who could have met during their lifetimes. Use format "&lt;first author&gt; - &lt;second author&gt;", e.g., ``'Karel Čapek' - 'Stanisław Lem'``
+5. the name of the author who lived the longest (use `foldl/4` to find the maximal element in a list)
+</div>
+
+<div class="nb-cell markdown" name="md3">
+Below is a space for the tests. The queries (and helper predicates) should be be placed in the _library.pl_ file to be verified.
+</div>
+
+<div class="nb-cell program" name="p2">
+% place for the auxiliary predicates
+</div>
+
+<div class="nb-cell query" name="q1">
+
+</div>
+
+<div class="nb-cell query" name="q2">
+
+</div>
+
+<div class="nb-cell query" name="q3">
+
+</div>
+
+<div class="nb-cell query" name="q4">
+
+</div>
+
+<div class="nb-cell query" name="q5">
+
+</div>
+
+</div>

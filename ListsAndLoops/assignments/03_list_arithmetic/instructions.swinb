@@ -1,0 +1,79 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Arytmetyka List
+
+Dla przypomnienia, liczba Peano to `zero` lub `s(P)`, gdzie `P` to liczba Peano o jeden mniejsza od `s(P)`. Listy się niewiele różnią od liczb Peano: najmniejsza lista to pusta lista `[]`. Każda inna lista to `'[|]'(E,L)`, gdzie `E` to nowy element listy a `L` to lista mająca o jeden element mniej. Notacja listowa to tylko _syntax sugar_. Innymi słowy, poniższe zapytanie jest prawdziwe:
+</div>
+
+<div class="nb-cell query" name="q1">
+'[|]'(a, '[|]'(b, '[|]'(c, []))) = [a,b,c]
+</div>
+
+<div class="nb-cell markdown" name="md8">
+Stąd prosty wniosek, że operacje na listach będą wyglądały tak samo lub bardzo podobnie do tych realizowanych na liczbach Peano. Poniższe zadanie dotyczą prostej arytmetyki list, w szczególności kluczowa jest operacja dodawania (konkatenacji) list, których będziemy aktywnie używać na kolejnych zajęciach.
+</div>
+
+<div class="nb-cell markdown" name="md9">
+## Misja 1 - Długość listy
+
+Długość listy powinna działać tak samo jak tłumaczenie liczby Peano na liczbę naturalną (_de facto_ długość liczby Peano).
+Proszę napisać analogiczną definicję dla list _list_number/2_. Można używać za równo notacji listowej (`[1,2,3,4]`) jak też `[|]/2`.
+</div>
+
+<div class="nb-cell program" name="p1">
+
+list_number(X,Y) :- fail.
+    
+</div>
+
+<div class="nb-cell markdown" name="md3">
+Poniżej przykładowe zapytanie :)
+</div>
+
+<div class="nb-cell query" name="q3">
+list_number([a,b,c,1,3,2], L).
+</div>
+
+<div class="nb-cell markdown" name="md2">
+## Misja 2 - Łączenie list
+Dodawanie list to nic innego jak połączenie ich (_konkatenacja_) w jedną dużą listę, np. `[a,b,c] + [1,2,3] = [a,b,c,1,2,3]`. Bazując na definicji dodawania liczb Peano z poprzednich zajęć, proszę napisać analogiczną definicję sklejania list.
+</div>
+
+<div class="nb-cell program" name="p2">
+list_add(L1, L2, L3) :- fail.  
+</div>
+
+<div class="nb-cell markdown" name="md4">
+Poniżej znowu miejsce na zapytanie:
+</div>
+
+<div class="nb-cell query" name="q4">
+list_add([a,b,c], [1,3,2], X)
+</div>
+
+<div class="nb-cell markdown" name="md5">
+## Misja 3 - Map/Filter/Reduce w akcji
+</div>
+
+<div class="nb-cell markdown" name="md7">
+Map/Filter/Reduce (maplist/include/foldl) potrafią w wielu przypadkach zastąpić rekurencję. Są o tyle bezpieczne, że znacznie trudniej zepsuć je tak, żeby operacja się zapętliła
+
+Proszę zaimplementować dwa predykaty _list_number/2_ i _list_add_mfr/3_, które będą dawać te same wyniki, co _list_number/2_ i _list_add/3_.
+</div>
+
+<div class="nb-cell program" name="p3">
+list_number_mfr(L, Length) :- fail.
+
+list_add_mfr(L1, L2, L3) :- fail.
+</div>
+
+<div class="nb-cell markdown" name="md10">
+I małe miejsce na zapytania do testów :)
+</div>
+
+<div class="nb-cell query" name="q2">
+
+</div>
+
+</div>

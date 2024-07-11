@@ -1,0 +1,178 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Lesson 3.1 - Lists vs Map/Filter/Reduce
+
+So far, the world described in the knowledge base consisted of individual elements connected by relations. Usually, this is sufficient, but it can be a bit inconvenient. Some relationships naturally occur only between sets of objects. This is where lists come to our rescue. A list is an ordered collection of arbitrary terms, and in the simplest case, it is represented using square brackets. For example, a list containing the constants `a`, `b`, and `c` is written as `[a, b, c]`. An empty list is represented as `[]`. 
+
+As for the properties of lists, let's start with the good news — lists can be unified!
+</div>
+
+<div class="nb-cell query" name="q1">
+[A,B,c] = [[], b, C].
+</div>
+
+<div class="nb-cell markdown" name="md2">
+It would be useful if we could add new elements to a list. A warning here: in Prolog, *nothing* can change its value, and in particular, a list cannot change the number of its elements. So, to add or remove a new element, you need to create a new list. Keeping this fundamental truth in mind, we can use the *guillotine* operator[1] ``|``. As the name suggests, the guillotine separates a head of the list from its body:
+
+[1] not an official name, the official name is a *bar* operator. Boring.
+</div>
+
+<div class="nb-cell query" name="q2">
+[H|T] = [a, b, c, d].
+</div>
+
+<div class="nb-cell markdown" name="md3">
+The ``H`` before the `|` is called a *head of the list* and is the first element of the list.
+
+The ``T`` holds rest of the elements and is called a *tail of the list* (hence the letter ``T``). 
+
+One can put the guillotine a bit further and take out more than one element:
+</div>
+
+<div class="nb-cell query" name="q3">
+[H1,H2,H3|T] = [a, b, c, d].
+</div>
+
+<div class="nb-cell markdown" name="md4">
+In a particular case, all elements of the list can appear in front of the ``|``. The guillotine metaphor doesn't make sense here, but  even then, ``T`` will still be a list, just an empty one!
+</div>
+
+<div class="nb-cell query" name="q4">
+[H1,H2,H3,H4|T] = [a, b, c, d].
+</div>
+
+<div class="nb-cell markdown" name="md5">
+The result is different when the number of elements in front of the guillotine exceeds the number of elements in the unified list.
+</div>
+
+<div class="nb-cell query" name="q5">
+[H1,H2,H3,H4|T] = [a, b, c].
+</div>
+
+<div class="nb-cell markdown" name="md6">
+Knowing all of this, to add an element to the beginning of a list, we can use the guillotine directly:
+</div>
+
+<div class="nb-cell query" name="q6">
+T = [b, c, d], L = [a|T].
+</div>
+
+<div class="nb-cell markdown" name="md7">
+Using the guillotine operator allows us to unify lists of unknown length. For example, the list ``[H1, H2 | T]|`` is a list that contains *at least 2 elements*. 
+
+This way, we can behead any enemy of the revolution and remove other body parts without any limitations.
+</div>
+
+<div class="nb-cell markdown" name="md8">
+### List in Rules
+
+With a basic understanding of lists, we can attempt to write a rule that retrieves the third element of a list:
+</div>
+
+<div class="nb-cell program" name="p1">
+third_element([_,_,Third], Third).
+</div>
+
+<div class="nb-cell markdown" name="md9">
+Now you can simply call this rule on an example list to obtain its third element. For example:
+</div>
+
+<div class="nb-cell query" name="q7">
+third_element([a,b,c],T).
+</div>
+
+<div class="nb-cell markdown" name="md10">
+And another one...
+</div>
+
+<div class="nb-cell query" name="q8">
+third_element([1,2,3,4],T).
+</div>
+
+<div class="nb-cell markdown" name="md11">
+Well, once again, something didn't work out. But it's not a mistake; please look at the first exercise:
+
+#### Exercises
+
+1. Why did the previous query fail? Please correct the definition of the `third_element/2` accordingly.
+2. Please try to define a recursive predicate `nth_element(List, N, Element)` that retrieves the n-th element of a list. *Hint:* if ``N = 1``, the result is the head of the list; if ``N = 2``, the result is the head of the tail of the list; if ``N = 3``, the result is the head of the tail of the tail of the list, and so on. Please generalize this into a recursive definition ;)
+3. Test the built-in predicates: ``length/2``, ``append/3``, ``member/2``, ``reverse/2``, ``nth1/3``, ``sort/2``. You may use the following query.
+</div>
+
+<div class="nb-cell query" name="q9">
+reverse([1, 2, 3, 4 ,5], List).
+</div>
+
+<div class="nb-cell markdown" name="md12">
+### List Processing (Map/Filter/Reduce)
+
+In programming, there are classically three basic types of operations on lists. In this section, we will learn how to process lists using Prolog's built-in mechanisms. The following knowledge base contains predicates that will be useful during the exercises.
+</div>
+
+<div class="nb-cell program" name="p2">
+filter(X) :- X &gt; 0.
+
+map(X,Y) :- Y is X * 2.
+
+reduce(X1, X2, Y) :- Y is X1 * X2.
+
+one(_, 1).
+
+add(X1, X2, Y) :- Y is X1 + X2.
+</div>
+
+<div class="nb-cell markdown" name="md13">
+#### Filter
+
+Conceptually, the simplest operation, *filtering*, involves selecting elements from a list ``L1`` satisfying a given condition. The chosen elements are then placed in a new list (let's call it ``L2``). Prolog has a built-in predicate ``include/3``, which takes the following arguments:
+
+1. Name of a predicate that should be true for the elements to be included in ``L2``.
+2. An initial list ``L1``.
+3. An output variable, which will be unified with the list ``L2``.
+</div>
+
+<div class="nb-cell query" name="q10">
+include(filtruj, [1, -1, 3, -4, 5], Result).
+</div>
+
+<div class="nb-cell markdown" name="md14">
+An example, how to implement ``include`` is shown in the following [program](https://swish.swi-prolog.org/?code=https://gitlab.com/agh-courses/23/lp/lab-03/-/raw/master/notebooks/filter.pl).
+
+#### Map
+
+*Map* involves translating the elements of a list into new elements to build a new list. For example, if we want to multiply all the elements of a list by two, we can map the list with the function ``X * 2``. For the list ``[-1, 2, -3, 4]``, the result will be ``[-2, 4, -6, 8]``. In Prolog, there is a built-in predicate ``maplist/3`` that takes the following arguments:
+
+1. The name of a two-argument predicate ``P/2``.
+2. The list ``L1``.
+3. The list ``L2``, which will contain elements ``E2`` such that for each element ``E1`` in ``L1``, ``P(E1, E2)`` holds.
+</div>
+
+<div class="nb-cell query" name="q11">
+maplist(map, [1, -1, 3, -4, 5], Result).
+</div>
+
+<div class="nb-cell markdown" name="md15">
+An example, how to implement ``maplist`` is shown in the following [program](https://swish.swi-prolog.org/?code=https://gitlab.com/agh-courses/23/lp/lab-03/-/raw/master/notebooks/map.pl).
+
+#### Reduce
+
+*Reduce* replaces a given list with a single value created by applying a binary function to successive pairs of the list elements. This may sound a bit daunting, but it's quite straightforward. For example, if we want to obtain the sum of all elements in the list ``[-1, 1, -2, 3, 0]``, in other words, `-1 + 1 + -2 + 3 + 0`, which is equivalent to `(((-1 + 1) + -2) + 3) + 0`. Reduce does exactly this; we take successive pairs of elements, first `-1` and `1`, add them to get `0`. Then, we add `0` to the third element of the list, which results in `-2`, and so on. In Prolog, there is a built-in predicate `foldl/4`, whose arguments mean the following:
+
+1. Name of a predicate that takes three arguments: the first one is the current value (so-called *accumulator*), second one is the currently reduced element, and the third is the result of applying the predicate.
+2. A list that we are reducing.
+3. An initial accumulator value — the starting value that will be reduced with the first element of the list. If we want to have the sum of the list, it should be ``0``. If we want the product of the list elements, ``1`` seems like a reasonable choice.
+4. An output variable.
+</div>
+
+<div class="nb-cell query" name="q12">
+foldl(reduce, [1, -1, 3, -4, 5], 1, Result).
+</div>
+
+<div class="nb-cell markdown" name="md16">
+Please try changing the value of the third argument in this call and see how it affects the final result.
+
+An example of how you can achieve a similar operation recursively without using a built-in predicate can be found in the [following program](https://swish.swi-prolog.org/?code=https://gitlab.com/agh-courses/23/lp/lab-03/-/raw/master/notebooks/reduce.pl).
+</div>
+
+</div>
