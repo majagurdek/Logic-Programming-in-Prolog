@@ -1,0 +1,146 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Lesson 2.2 Arithmetics
+
+Until now, every knowledge base we've worked on consisted only of predicates whose arguments were certain symbolic constants like names. Meanwhile, Prolog supports another type of constants — numbers. During today's lab, we will learn how to work with numbers, perform basic arithmetic operations, define complex operations, and utilize the properties of numbers in predicates.
+</div>
+
+<div class="nb-cell markdown" name="md2">
+## Numerical Constans
+
+Let's start with the basics, numbers are constants and therefore you can unify them with variables:
+</div>
+
+<div class="nb-cell query" name="q1">
+X = 4.
+</div>
+
+<div class="nb-cell query" name="q2">
+suma(X,product(5,Y)) = sum(7,Z).
+</div>
+
+<div class="nb-cell query" name="q3">
+7 = 4.
+</div>
+
+<div class="nb-cell markdown" name="md3">
+An important feautre of numbers is that they are ordered and can be compared. Prolog has built-in following operators `&lt;`, `=&lt;`, `=`, `&gt;=`, `&gt;` — their semantics should be clear enoug.
+</div>
+
+<div class="nb-cell query" name="q4">
+4 =&lt; 5.
+</div>
+
+<div class="nb-cell markdown" name="md4">
+The following example demonstrates the most common use of comparison operators. `X > 3` is a so-called *guard*, selecting which rule should be executed for the given argument.
+</div>
+
+<div class="nb-cell program" name="p1">
+test(X) :- X &gt; 3, write('Wow, you are amazing!'), nl.
+test(X) :- X = 3, write('Good enough.'), nl.
+test(X) :- X &lt; 3, write('Do not worry, there is a second attempt in February'), nl.
+</div>
+
+<div class="nb-cell query" name="q5">
+test(2).
+</div>
+
+<div class="nb-cell query" name="q6">
+test(4).
+</div>
+
+<div class="nb-cell markdown" name="md5">
+## Arithmetics
+
+Certainly, we are all eagerly awaiting the primary advantage of numbers — we can perform some calculations! In Prolog, all the basic arithmetic operations are defined, namely `+`, `-`, `/`, `*`, which correspond to addition, subtraction, multiplication, and division, respectively (there are many more, but for now, these will suffice). Now, let's try to add something:
+</div>
+
+<div class="nb-cell query" name="q7">
+X = 4 + 5.
+</div>
+
+<div class="nb-cell markdown" name="md6">
+Oops, something went wrong. Just to remind you, `=` is just the unification operator, and unification itself has nothing to do with performing addition — for unification, `+` is just another symbol. 
+Due to the execution of calculations in Prolog, the `is` operator has to be used - it differs from regular unification in that it first evaluates the right-hand side before unification.
+</div>
+
+<div class="nb-cell query" name="q8">
+X is 4 + 5.
+</div>
+
+<div class="nb-cell markdown" name="md7">
+"Oh, yeah!" — as the ancient Britons used to say. You've got it, congratulations! Now it should be smooth sailing:
+</div>
+
+<div class="nb-cell query" name="q9">
+X is Y * 5 + 3.
+</div>
+
+<div class="nb-cell markdown" name="md8">
+Unfortunately, another failure. The `is` operator didn't work because it couldn't evaluate the right expression with the variable =Y= being unbound. The following version is much better:
+</div>
+
+<div class="nb-cell query" name="q10">
+Y = 4, X is Y * 5 + 3.
+</div>
+
+<div class="nb-cell markdown" name="md9">
+*Warning to programmers*: In Prolog, variables never change their values — you cannot increment a variable! To increase a value by 1, you always need to introduce a new variable. Please modify the following query so that the new variable =X1= has a value `1` greater than =X=.
+</div>
+
+<div class="nb-cell query" name="q11">
+X = 5, X is X + 1.
+</div>
+
+<div class="nb-cell markdown" name="md10">
+Sometimes we want to evaluate both sides of an equation:
+</div>
+
+<div class="nb-cell query" name="q12">
+6 + 3 is (9 - 5) * 9 / 4.
+</div>
+
+<div class="nb-cell markdown" name="md11">
+It won't work either :( *is* does not evalute the left side. Luckily, we can use an extra variable:
+</div>
+
+<div class="nb-cell query" name="q13">
+Z is 6 + 3, Z is (9 - 5) * 9 / 4.
+</div>
+
+<div class="nb-cell markdown" name="md12">
+The same can be done  quicker with the `=:=` operator:
+</div>
+
+<div class="nb-cell query" name="q14">
+6 + 3 =:= (9 - 5) * 9 / 4.
+</div>
+
+<div class="nb-cell markdown" name="md13">
+### Recursion on Number
+
+We all know recursive rules by now and how to use them when defining relations of unknown complexity. Now, we'll do simpler things: defining mathematical operations that involve an unknown number of smaller operations from the start. The simplest example could be exponentiation:
+</div>
+
+<div class="nb-cell program" name="p2">
+% power(base, exponent, result)
+% X^0 is always 1
+power(_, 0, 1).
+% otherwise...
+power(Base, Exponent, Result) :-
+  Exponent &gt; 0,
+  ExponentPredecessor is Exponent - 1,
+  power(Base, ExponentPredecessor, SubResult),
+  Result is SubResult * Base.
+</div>
+
+<div class="nb-cell markdown" name="md14">
+The base case for us is when the exponent is zero - we can handle that without recursion. Now, we can go wild and try to calculate:
+</div>
+
+<div class="nb-cell query" name="q15">
+power(4, 5, Result).
+</div>
+
+</div>

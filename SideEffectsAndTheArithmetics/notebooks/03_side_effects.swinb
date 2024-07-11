@@ -1,0 +1,273 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Lessons 2.1 - Side Effects
+
+This lesson will focus on Prolog features making it similar to the classical programming languages. 
+We will learn how to read from the standard input and write to the standard output. 
+To create interesting programs we will explore how Prolog executes the queries. 
+Finally, we will modify the existing knowledge base dynamically.
+The lesson will use the already known knowledge base presented  below:
+</div>
+
+<div class="nb-cell program" name="p1">
+is_mother(X,Y) :- is_parent(X,Y), 
+                  is_woman(X).
+
+is_father(X,Y) :- is_parent(X,Y),
+                  is_man(X).
+
+are_siblings(X,Y) :- is_parent(Z,X),
+                     is_parent(Z,Y), X \= Y.
+
+is_brother(X,Y) :- are_siblings(X,Y),
+                   is_man(X).
+
+is_sister(X,Y) :- are_siblings(X,Y),
+                  is_woman(X).
+
+is_wife(X,Y) :- is_husband(Y,X).
+
+is_parental_uncle(X,Y) :- is_father(Z,Y),
+                          is_brother(X,Z).
+
+is_parental_aunt(X,Y) :- is_father(Z,Y),
+                         is_sister(X,Z).
+
+is_parental_aunt(X,Y) :- is_parental_uncle(Z,Y),
+                         is_wife(X,Z).
+
+is_spouse(X,Y) :- is_husband(X,Y).
+is_spouse(X,Y) :- is_wife(X,Y).
+
+is_father_in_law(X,Y) :- is_spouse(Z,Y),
+                         is_parent(X,Z).
+
+is_ancestor(X,Y) :- is_parent(X,Y).
+is_ancestor(X,Y) :- is_parent(Z,Y),
+                    is_ancestor(X,Z).
+
+is_cousin(X,Y) :- is_ancestor(Z,X),
+                  is_ancestor(Z,Y),
+    				      X \= Y.
+
+is_descendant(X,Y) :- is_ancestor(Y,X).
+
+
+is_brother_in_law_1(X,Y) :- is_sister(Z,Y),
+                            is_husband(X,Z).
+
+% Please notice how we explioit the symmetry
+% of the `brother-in-law` relation
+% we are using a helper predicate is_brother_in_law_1/2
+is_brother_in_law(X,Y) :- is_brother_in_law_1(X,Y).
+is_brother_in_law(X,Y) :- is_brother_in_law_1(Y,X).
+
+% is_parent(parent, child)
+is_parent(kate, robert).
+is_parent(kate, michael).
+is_parent(thomas, robert).
+is_parent(thomas, elisa).
+is_parent(robert, miriam).
+
+% is_husband(husband, wife)
+is_husband(thomas, kate).
+is_husband(michael, faustyna).
+
+% is_woman(name)
+is_woman(kate).
+is_woman(elisa).
+is_woman(faustyna).
+
+% is_man(name)
+is_man(thomas).
+is_man(robert).
+is_man(michael).
+
+'DO_NOT_PANIC' :- write('---- DO NOT PANIC ----'), nl, write('Do not stress out, it is not your fault - this query should not succeed at first'), nl.
+</div>
+
+<div class="nb-cell markdown" name="md2">
+## Query Execution
+
+Till now, we were treating Prolog as a logic based system. 
+Sadly, the Prolog creators decided to make a compromise and sacrifice the logical quality to make Prolog more universal language. 
+The main difference between Prolog and the formal logic is that in Prolog *order matters*. 
+The query below shows it explictly:
+
+- the `write/1` predicate prints a string
+- the `nl/0` predicate print ther new line character
+</div>
+
+<div class="nb-cell query" name="q1">
+write("I will be printed first"), nl, write("I will be printed second"), nl.
+</div>
+
+<div class="nb-cell markdown" name="md3">
+Printing string to the standard output is not really important from the formal logic perspective, but it shows that Prolog exectues queries *from left to right*,
+Wypisywanie na ekran napisów nie ma żadnego znaczenia z punktu widzenia wnioskowania, niemniej pokazuje, że *zapytania są przez Prolog intepretowane od lewej do prawej*. 
+Another example uses the `read/1` to show the execution order:
+</div>
+
+<div class="nb-cell query" name="q2">
+write("Tell me your name"), nl, read(Name), write("Your name is: "), write(Name), nl.
+</div>
+
+<div class="nb-cell markdown" name="md4">
+In formal logic the order does not matter. Here `read(Name)` has to be before `write(Name)` - you may try to swap them and check the result. On the other hand, the formal logic does not involve standard input/output operations...
+
+An even more suprising example is shown below — can you explain this strange behavior?
+</div>
+
+<div class="nb-cell query" name="q3">
+is_father(Dad,_), \+ is_woman(Dad).
+</div>
+
+<div class="nb-cell query" name="q4">
+\+ is_woman(Dad), is_father(Dad,_).
+</div>
+
+<div class="nb-cell markdown" name="md5">
+## Exploring the Knowledge Base
+
+Another place, where the order matter, is the knolwedge base. Look at the query below:
+</div>
+
+<div class="nb-cell query" name="q5">
+is_woman(X).
+</div>
+
+<div class="nb-cell markdown" name="md6">
+How is the order of results related to the knolwedge base structure?
+
+The same about:
+</div>
+
+<div class="nb-cell query" name="q6">
+is_parental_aunt(X,_).
+</div>
+
+<div class="nb-cell markdown" name="md7">
+In what order have the `is_parental_aunt/2` rules executed?
+
+Prolog is *very European*  and always reads *left-to-right and top-to-bottom*
+</div>
+
+<div class="nb-cell markdown" name="md8">
+## Failure
+
+Knowing what is the exploration order, we are ready to understand how Prolog finds results in the knowledge base. 
+The key is treating *search failures* to trigger *backtracking*. 
+Prolog tries to match (unify) all the facts/rules in the base with the query. 
+If a given fact (rule head) can't be unified with the query, Prolog treats it as a *failure* and looks for another possible result.
+
+The *next* button does exactly the same: it simulates the *failure* and forces Prolog to look for another answer.
+It is called backtracking, because Prolog has to return to the last place it could choose another fact/rule and start from there. 
+This depth-first-search strategy is important especially when implementing a recursive predicate: 
+</div>
+
+<div class="nb-cell query" name="q8">
+is_ancestor(X,_).
+</div>
+
+<div class="nb-cell markdown" name="md10">
+Try to reproduce the order of results for this query on paper. 
+
+_|...write and think...|_
+
+_|...give yourself some time to be sure...|_
+
+_|...if it's not enough, ask your teacher...|_
+
+_|...if you get the idea, then continue:|_
+
+We should notice, the result is returned only when the Prolog reaches the base case of our recursive rule. 
+It's very important to put the base case always on the top of the predicate definition.
+Can you explain, why?
+</div>
+
+<div class="nb-cell markdown" name="md11">
+### Forcing Backtracking 
+
+There are two keywords allowing us to steer the search process: =true= and =fail=. 
+The first one says that everything is fine and... is almost useless.
+Writing =|fact(X,Y) :- true.|= is the same as writing =|fact(X,Y).|=
+
+On the other hand *fail* is much more interesting.  
+Using it forces Prolog to backtrack and change the search order.
+
+---
+
+#### Exercise 
+
+Pleas run the query:
+</div>
+
+<div class="nb-cell query" name="q9">
+is_man(X).
+</div>
+
+<div class="nb-cell markdown" name="md12">
+and then:
+</div>
+
+<div class="nb-cell query" name="q10">
+is_man(X), write(X), nl, fail.
+</div>
+
+<div class="nb-cell markdown" name="md13">
+1. What are the differences between these two queries?
+2. What instruction from the imperative languages (e.g., Java, Python) could we simulate with *fail*?
+</div>
+
+<div class="nb-cell markdown" name="md14">
+## Modifying the Knowledge Base
+
+In previous exercises we have been asking user to provide a value with `read/1`. 
+Now, we will try to remember their answer, using the `assert/1` predicate: 
+</div>
+
+<div class="nb-cell query" name="q11">
+'DO_NOT_PANIC', assert(is_man(mateusz)).
+</div>
+
+<div class="nb-cell markdown" name="md15">
+The query failed, but the big friendly text at the beginning keeps us calm. 
+To *dynamically* add facts and rules to the base, the predicate has to be defined as `dynamic`:
+
+==
+:- dynamic is_man/1.
+==
+
+This line is a rule with no head. 
+Such rules are called goals and are run by Prolog automatically when the knowledge base is loaded. 
+In this case we tell Prolog that there is a `is_man/1` predicate, that will be dynamically modified. After adding this line to the knowledge base, we can try again:
+</div>
+
+<div class="nb-cell query" name="q12">
+assert(is_man(mateusz)), is_man(mateusz).
+</div>
+
+<div class="nb-cell markdown" name="md16">
+In normal Prolog program `is_man(mateusz)` would be remembered and would globally acessible. Sadly, the SWISH notebook clear dynamic predicated after each query, to the `is_man(mateusz)` will perish as soon as you finish the query.
+
+Now, since we know how to add knowledge to base, we should be also able to remove it. There are two predicates just for this purpose: `rectract/1` i `retractall/1`. The `rectract/1` forgets a *single* clause, `retractall/1` forgets *all* clauses matching the argument, e.g., `rectractall(is_man(_))` will remove all the dynamically added to the knolwedge base:
+</div>
+
+<div class="nb-cell query" name="q13">
+assert(is_man(mateusz)), retractall(is_man(_)), is_man(mateusz).
+</div>
+
+<div class="nb-cell markdown" name="md17">
+PS You can `assert` not only facts, but also complex rules. It is a bit crazy and for now we will move on.
+</div>
+
+<div class="nb-cell markdown" name="md18">
+## Side Effects
+
+Printing data on the screen and changing the database are so-called side effects. A function/predicate contains side effects if it performs operations other than returning a result. A function without side effects is often called a [pure function](https://en.wikipedia.org/wiki/Pure_function). The main advantage of pure functions is that for the same arguments, they always return the same result, similar to what happens in mathematics.
+
+In Prolog, the failure "rolls back" all the effects of the code *except* for side effects. For this reason, using =fail= to implement loops makes sense only when the code within the loop has side effects.
+</div>
+
+</div>
