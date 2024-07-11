@@ -1,0 +1,201 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Lesson 5.2. Second-Order Logic
+</div>
+
+<div class="nb-cell markdown" name="md2">
+A characteristic feature of functional languages is the ability to treat functions as ordinary language objects. In Prolog, the same effect can be achieved using higher-order predicates (predicates that process other predicates).
+
+So far, we have used built-in predicates of this type: maplist/3, foldl/4, include/3, foreach/2, forall/2, findall/3, etc. All of them took the name of a predicate or a ready query as one of the arguments. Today, we will see how to write similar predicates from scratch.
+</div>
+
+<div class="nb-cell markdown" name="md35">
+## _call_
+</div>
+
+<div class="nb-cell markdown" name="md36">
+The most fundamental higher-order operation is "calling" predicates passed as terms. The predicate used for this purpose is call/1:
+</div>
+
+<div class="nb-cell query" name="q5">
+call(writeln("equivalent to writeln/1")).
+</div>
+
+<div class="nb-cell markdown" name="md3">
+_call/1_ is 'transparent', just calls its argument :) 
+
+Key insight is that it can be used to execute queries passed from the outside. Below is our version of the forall/2 loop. Similar to forall/2, it performs the loop based on the fail mechanism.
+</div>
+
+<div class="nb-cell program" name="p1">
+our_forall(Condition, Action) :-
+    call(Condition),
+    call(Action), 
+    fail.
+our_forall(_, _).
+</div>
+
+<div class="nb-cell query" name="q1">
+our_forall(between(1,8,X), writeln(X)).
+</div>
+
+<div class="nb-cell markdown" name="md10">
+BTW _between/3_ is equivalent to `range` from Python. 
+
+Similar to bodies of clauses, it is possible to combine queries with a comma, but one must remember to use parentheses:
+</div>
+
+<div class="nb-cell program" name="p2">
+our_forall(Condition, Action) :-
+    call((Condition, Action)),
+    fail.
+our_forall(_, _).
+</div>
+
+<div class="nb-cell markdown" name="md11">
+And again:
+</div>
+
+<div class="nb-cell query" name="q6">
+our_forall(between(1,8,X), writeln(X)).
+</div>
+
+<div class="nb-cell markdown" name="md4">
+### SWISH Warning
+
+Sometimes SWISH runtime may refuse to execute unsafe code using call/1.
+If that happens, one has to use an [on-line WASM based prolog engine](https://dev.swi-prolog.org/wasm/shell) or can run Prolog locally on their machine:
+
+To run this code locally on your machine, you need to:
+	1. Have a SWI-Prolog installed.
+    2. Create a text file with the extension =|.pl|=, for example, =|our_forall.pl|=.
+    3. From the terminal in the same directory, run =|swipl|=.
+    4. In the Prolog console, load the program file: =|['our_forall.pl'].|= (the dot is important).
+    4. Run =|our_forall(between(1,8,X), writeln(X)).|=
+
+If someone forgets the dot, they can always add it in a new line. If Prolog gets confused and asks what to do =|(Action (h for help) ?)|=, the letter =|h|= shows a list of commands, the letter =|a|= interrupts the current operation. =|halt.:= closes the Prolog command line.
+
+The [on-line environment](https://dev.swi-prolog.org/wasm/shell) works the same way.
+</div>
+
+<div class="nb-cell markdown" name="md12">
+#### Conjuction as a Data Structure
+</div>
+
+<div class="nb-cell markdown" name="md13">
+The parentheses in the previous example allowed for combining queries into a conjunction of queries. Conjunction (predicate body) in many ways resembles a regular list. The main difference lies in the behavior of the comma, which behaves similarly to the pipe =|||= in the case of lists:
+</div>
+
+<div class="nb-cell query" name="q7">
+(a,b,c) = (H,T).
+</div>
+
+<div class="nb-cell markdown" name="md14">
+Now, if one wanted to call the conjuction elements one by one, they could write:
+</div>
+
+<div class="nb-cell program" name="p4">
+call_conjuction((H,T)) :- call(H), call_conjuction(T).
+call_conjuction((H)) :- call(H).
+</div>
+
+<div class="nb-cell query" name="q8">
+call_conjuction((writeln('a'), writeln('b'), writeln('c'))).
+</div>
+
+<div class="nb-cell markdown" name="md15">
+Unfortunately, the code above is a bit naive. In lists =|[a] \= a|=, in conjuctions however...
+</div>
+
+<div class="nb-cell query" name="q9">
+(a) = a.
+</div>
+
+<div class="nb-cell markdown" name="md17">
+Therefore:
+</div>
+
+<div class="nb-cell query" name="q10">
+(H) = (a,b,c).
+</div>
+
+<div class="nb-cell markdown" name="md18">
+Because of that `call_conjuction((H))` will be executed also for multi-element conjuctions. The correct version would have to be smarter:
+</div>
+
+<div class="nb-cell program" name="p6">
+call_conjuction((H,T)) :- call(H), call_conjuction(T).
+call_conjuction((H)) :- H \= (_,_), call(H).
+</div>
+
+<div class="nb-cell markdown" name="md16">
+or use the =|!|= operator:
+</div>
+
+<div class="nb-cell program" name="p5">
+call_conjuction((H,T)) :- !, call(H), call_conjuction(T).
+call_conjuction((H)) :- call(H).
+</div>
+
+<div class="nb-cell markdown" name="md19">
+Luckily, _call/1_ does it all for us ;)
+</div>
+
+<div class="nb-cell markdown" name="md21">
+#### Other Related Predicates
+
+There are other variations of `call/1` that can often be more convenient — all of them are described in the [documentation](https://www.swi-prolog.org/pldoc/man?section=metacall). Among the most useful ones are:
+
+    - `call/N` — `call(query(arg1), arg2, arg3)` works the same as `call(query(arg1,arg2,arg3))`
+    - `ignore/1` - works the same as call, but always succeeds, even if the query fails
+    - `once/1` — calls the query but returns only the first result, sometimes it can replace =|!|= operator
+    - `setup_call_cleanup/3` — the query is passed as the second argument, the first is responsible for setting up the environment (setup); the third is for cleaning up after calling the query (equivalent to Java's =|finally|=)
+</div>
+
+<div class="nb-cell markdown" name="md39">
+## The =|=..|= Operator
+
+Sometimes, before executing a query, we want to process it dynamically create a new query 'from code.' The =|=../2|= operator serves this purpose, converting calls into a list and vice versa:
+</div>
+
+<div class="nb-cell query" name="q21">
+Query =.. [predicate_name, first_arg, second_arg].
+</div>
+
+<div class="nb-cell query" name="q11">
+predicate_name(first_arg, second_arg) =.. List.
+</div>
+
+<div class="nb-cell markdown" name="md40">
+Combined with _call/1_ it allows to create  higher-order predicates, e.g., a basic variant of _maplist/3_ could be implemented as follows:
+</div>
+
+<div class="nb-cell program" name="p9">
+our_maplist(_, [], []).
+our_maplist(Predicate, [H|T], [MH|MT]) :-
+    Query =.. [Predicate, H, MH],
+    call(Query),
+    our_maplist(Predicate, T, MT).
+
+times_two(X,Y) :- Y is X * 2.
+</div>
+
+<div class="nb-cell markdown" name="md20">
+Niestety, SWISH nie pozwoli na takie dynamiczne zapytanie - powyższy przykład należy uruchomić lokalnie z poniższym zapytaniem:
+</div>
+
+<div class="nb-cell query" name="q12">
+our_maplist(times_two, [1,2,3], Result).
+</div>
+
+<div class="nb-cell markdown" name="md43">
+#### Other Useful Predicates For Term Analysis:
+
+In addition to `=../2`, there are many other useful predicates described in the [documentation](https://www.swi-prolog.org/pldoc/man?section=manipterm). Among them, the most notable are:
+
+    - `copy_term/2`, which copies a term, creating new variables
+    - `term_variables/2`, which finds all variables in a term
+</div>
+
+</div>

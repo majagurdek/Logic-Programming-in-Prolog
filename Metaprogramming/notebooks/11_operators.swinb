@@ -1,0 +1,164 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Lesson 5.3. Operators
+</div>
+
+<div class="nb-cell markdown" name="md2">
+The syntax of Prolog is simple, and until today, not much has changed: there were predicates, terms, and a few built-in operators, such as =|+|=, =|-|=, =|||=, =|:-|=, =|\+|=, etc. Today, we will finally learn what operators are and how to add custom operators to the language.
+</div>
+
+<div class="nb-cell markdown" name="md35">
+## Syntactic Sugar
+</div>
+
+<div class="nb-cell markdown" name="md36">
+Operators are essentially nothing more than [syntactic sugar](https://www.wikiwand.com/en/Syntactic_sugar), which allows for a more elegant way of writing terms.
+
+In reality, every operator is just a regular term symbol, for example,"
+</div>
+
+<div class="nb-cell query" name="q5">
+4 + 3 = +(4,3)
+</div>
+
+<div class="nb-cell query" name="q6">
+[a|[b]] = '[|]'(a,[b])
+</div>
+
+<div class="nb-cell query" name="q7">
+(a, b) = ','(a,b)
+</div>
+
+<div class="nb-cell markdown" name="md9">
+In other words, operators exist solely to make code more readable. Unlike operators in most programming languages (e.g., C++), Prolog allows the programmer to create their own operators using the op/3 predicate. The documentation for this predicate essentially covers everything needed; the rest of this instruction will try to explain operators in a more accessible way.
+</div>
+
+<div class="nb-cell markdown" name="md10">
+### Example
+</div>
+
+<div class="nb-cell markdown" name="md11">
+Let's start with a simple example of an operator named `and`, which is intended to work exactly like the conjunction 'and' in the English language:
+</div>
+
+<div class="nb-cell program" data-background="true" name="p1">
+:- op(500, xfy, and).
+</div>
+
+<div class="nb-cell markdown" name="md12">
+Now we can use `and` as an operator:
+</div>
+
+<div class="nb-cell query" name="q8">
+mom and dad and son = X
+</div>
+
+<div class="nb-cell query" name="q9">
+family(mom and dad and son) = family(X).
+</div>
+
+<div class="nb-cell query" name="q10">
+mom and dad and son = X and Y and Z
+</div>
+
+<div class="nb-cell query" name="q11">
+mom and dad and son = X and Y
+</div>
+
+<div class="nb-cell markdown" name="md3">
+Let's analyze how do we define operators.
+</div>
+
+<div class="nb-cell markdown" name="md37">
+### Precedence
+</div>
+
+<div class="nb-cell markdown" name="md13">
+The precedence of an operator indicates how tightly it binds its arguments. Intuitively, this is related to the order of operations in arithmetic, where multiplication `*` binds more tightly (is executed earlier) than addition `+`.
+
+The smaller the numeric value of the precedence, the higher it is. For example, in Prolog, multiplication has a priority of `400`, and addition has a priority of `500`.
+</div>
+
+<div class="nb-cell query" name="q12">
+5 + 3 * 4 = +(5, *(3, 4)).
+</div>
+
+<div class="nb-cell markdown" name="md14">
+Priorities allow the combination of operators without using parentheses. However, there is nothing stopping you from using parentheses to enforce the order of operations:
+</div>
+
+<div class="nb-cell query" name="q13">
+(5 + 3) * 4 = *(+(5, 3), 4)
+</div>
+
+<div class="nb-cell markdown" name="md15">
+### Type
+</div>
+
+<div class="nb-cell markdown" name="md16">
+There are seven types of operators in Prolog, which can be grouped into three families:
+
+    1. Prefix operators, which take one argument positioned after the operator. There are two types of prefix operators: `fx` and `fy` (the `f` position indicates that the operator appears *before* the argument). An example of such an operator is the negation =|\+|=.
+
+    2. Postfix operators, which differ from prefix operators only in the position of the argument, which is positioned before the operator: `xf` and `yf`. There are no built-in operators of this type.
+
+    3. Infix operators, which take two arguments and are positioned *between* them: `xfx`, `xfy`, `yfx`. There are many examples of such operators: =|+|=, =|-|=, =|*|=, =|||=, =|&gt;|=, and so on.
+</div>
+
+<div class="nb-cell markdown" name="md38">
+While the division into pre-/post-/in- seems clear, the difference between `x` and `y` arguments requires additional explanation. Formally, the `x` argument must bind more tightly than `f`, while the `y` argument can bind as tightly or less tightly than `f`. This is significant when combining a larger number of operators. Let's define two unary operators with very high precedence and different types:
+</div>
+
+<div class="nb-cell program" name="p2">
+:- op(100, fx, inside).
+:- op(100, fy, in).
+</div>
+
+<div class="nb-cell markdown" name="md17">
+The `inside` operator does not allow its argument to have the same priority as itself. Therefore, nesting it is not possible:
+</div>
+
+<div class="nb-cell query" name="q1">
+inside inside inside house = X.
+</div>
+
+<div class="nb-cell markdown" name="md18">
+`in` doesn't have any issue with nesting:
+</div>
+
+<div class="nb-cell query" name="q14">
+in in in building = X.
+</div>
+
+<div class="nb-cell markdown" name="md39">
+This is most significant in infix operators, as it allows for building chains of operators with the same precedence:
+</div>
+
+<div class="nb-cell query" name="q15">
+5 + 3 - 3 + 2 = +(-(+(5, 3),3),2)
+</div>
+
+<div class="nb-cell markdown" name="md19">
+The above query shows the order of computation (the order of parentheses) from left to right. This is due to the definition of addition and subtraction — both operators have the `yfx` type, which unambiguously indicates that nesting can only occur to the left. `xfy` would nest operators to the right (as is the case with the =|||= operator), `xfx` excludes any nesting (as do comparison operators `&gt;`, `&lt;`, etc., and `is`).
+</div>
+
+<div class="nb-cell markdown" name="md20">
+### Name
+</div>
+
+<div class="nb-cell markdown" name="md21">
+Finally, the simplest part :) The name is just the textual representation of the operator and can be practically any sequence of characters not interrupted by spaces.
+</div>
+
+<div class="nb-cell program" name="p3">
+:- op(600, xf, end).
+:- op(500, xfx, are).
+:- op(400, xfy, and).
+</div>
+
+<div class="nb-cell query" name="q2">
+end(X) = operators are precedence and type and name end
+</div>
+
+</div>

@@ -1,0 +1,297 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Lesson 5.1 - The `or` and `cut` operators
+</div>
+
+<div class="nb-cell markdown" name="md2">
+So far, all our predicates' bodies were just conjunctions of predicate calls. This is entirely sufficient for writing in Prolog, but occasionally, it can be inconvenient. Today, we will learn two operators that allow for writing shorter and often more efficient programs.
+</div>
+
+<div class="nb-cell markdown" name="md35">
+## Logical `or`
+</div>
+
+<div class="nb-cell markdown" name="md36">
+We already know that =|,|= is a logical `and`:
+</div>
+
+<div class="nb-cell program" name="p1">
+and :- writeln(a), writeln(b).
+</div>
+
+<div class="nb-cell markdown" name="md3">
+Both `writeln(a)` and `writeln(b)` have to succeed to make =|and/0|= succeed:
+</div>
+
+<div class="nb-cell query" name="q1">
+and.
+</div>
+
+<div class="nb-cell markdown" name="md4">
+To express the logical =|or|= we have used two separate rules:
+</div>
+
+<div class="nb-cell program" name="p6">
+or :- writeln(a).
+or :- writeln(b).
+</div>
+
+<div class="nb-cell markdown" name="md37">
+Now it is enough, that one of `writeln(a)` *or* `writeln(b)`, succeeds:
+</div>
+
+<div class="nb-cell query" name="q19">
+or.
+</div>
+
+<div class="nb-cell markdown" name="md38">
+It turns out that it is possible to shorten the above notation. The semicolon `;/2` is an alternative operator in Prolog, allowing the representation of alternatives in a single clause. The following program works the same as the previous one.
+</div>
+
+<div class="nb-cell program" name="p7">
+or :- writeln(a) ; writeln(b).
+</div>
+
+<div class="nb-cell query" name="q20">
+or.
+</div>
+
+<div class="nb-cell markdown" name="md39">
+### Warning! Achtung! Uwaga!
+
+`and` operator has a precedence over `or`!
+</div>
+
+<div class="nb-cell program" name="p8">
+or :- writeln(a), writeln(b) ; writeln(c), writeln(d).
+</div>
+
+<div class="nb-cell query" name="q21">
+or.
+</div>
+
+<div class="nb-cell markdown" name="md40">
+So the program above is equivalent to:
+</div>
+
+<div class="nb-cell program" name="p9">
+or :- writeln(a), writeln(b). 
+or :- writeln(c), writeln(d).
+</div>
+
+<div class="nb-cell markdown" name="md41">
+To achieve =|b or c|= in this scenario, one has to use parentheses:
+</div>
+
+<div class="nb-cell program" name="p10">
+or :-  
+    writeln(a), 
+    (writeln(b) ; writeln(c)), 
+    writeln(d).
+</div>
+
+<div class="nb-cell query" name="q22">
+or
+</div>
+
+<div class="nb-cell markdown" name="md42">
+, equivalent to:
+</div>
+
+<div class="nb-cell program" name="p11">
+or :- writeln(a), or_bc.
+or_bc :- writeln(b), writeln(d).
+or_bc :- writeln(c), writeln(d).
+</div>
+
+<div class="nb-cell markdown" name="md43">
+### Advice
+
+Similar to other programming languages, in Prolog, it is worthwhile to create as many small predicates as possible. Using auxiliary clauses is often more readable than the alternative operator, just like in other programming languages.
+</div>
+
+<div class="nb-cell markdown" name="md5">
+## The `cut` Operator
+</div>
+
+<div class="nb-cell markdown" name="md6">
+As we already know, Prolog, during query processing, checks all possible solutions, 'backtracking' in case of failure. For this reason, when defining recursive predicates, at the beginning of the predicate body, we must check whether we are dealing with the base case. Below is a classic implementation of factorial in Prolog:
+</div>
+
+<div class="nb-cell program" name="p12">
+factorial(0,1).
+factorial(X,W) :- 
+    X &gt; 0, 
+    PX is X - 1,
+    factorial(PX, PW),
+    W is PW * X.
+</div>
+
+<div class="nb-cell query" name="q2">
+factorial(5,W).
+</div>
+
+<div class="nb-cell markdown" name="md44">
+In the first line, the first argument of the predicate states that only for the value `0`, the result is `1`. For any other value, this clause will not be invoked.
+
+`X &gt; 0` in line 3 checks whether we might have the base case. What happens if we remove it?
+</div>
+
+<div class="nb-cell program" name="p13">
+factorial(0,1).
+factorial(X,W) :- 
+%    X &gt; 0, 
+    PX is X - 1,
+    factorial(PX, PW),
+    W is PW * X.
+</div>
+
+<div class="nb-cell query" name="q23">
+factorial(5,W).
+</div>
+
+<div class="nb-cell markdown" name="md7">
+The first result will be correct, but when we ask for the next one, Prolog will enter into infinite recursion! This happens because the second clause is executed also for the value `0` (and then `-1`, `-2`, etc).
+</div>
+
+<div class="nb-cell markdown" name="md45">
+#### Python Analogy 1
+</div>
+
+<div class="nb-cell markdown" name="md46">
+Our factorial (with the `X &gt; 0` guard) corresponds to the following Python code:
+
+==
+def factorial(x):
+    if x == 0:
+    	return 1
+    if x &gt; 0:
+    	return x*factorial(x-1)
+==
+</div>
+
+<div class="nb-cell markdown" name="md48">
+It is correct code, but (assuming the user does not provide a negative value as argument) it can be optimized by replacing =|if x &gt; 0:|= with =|else:|=:
+</div>
+
+<div class="nb-cell markdown" name="md49">
+==
+def factorial(x):
+    if x == 0:
+        return 1
+    else:
+        return x*factorial(x-1)
+==
+</div>
+
+<div class="nb-cell markdown" name="md50">
+The gain is two-fold:
+1. the new version is cleaner/shorter
+2. the new version is a bit faster — there is only one check: `x == 0`.
+</div>
+
+<div class="nb-cell markdown" name="md47">
+### Else in Prolog
+</div>
+
+<div class="nb-cell markdown" name="md51">
+To achieve a similar effect in Prolog, you can use the cut operator, denoted by an exclamation mark =|!|=. The following Prolog code corresponds to the _else_ version:
+</div>
+
+<div class="nb-cell program" name="p14">
+factorial(0,1) :- !.
+factorial(X,W) :- 
+    PX is X - 1,
+    factorial(PX, PW),
+    W is PW * X.
+</div>
+
+<div class="nb-cell query" name="q3">
+factorial(5,W).
+</div>
+
+<div class="nb-cell markdown" name="md8">
+The exclamation mark causes Prolog to forget all alternatives regarding the current branch of computation. Therefore, if the first argument of factorial is `0`, Prolog will forget that there is another clause for factorial.
+</div>
+
+<div class="nb-cell markdown" name="md52">
+### Details
+</div>
+
+<div class="nb-cell markdown" name="md53">
+Encountering the cut operator =|!|= makes Prolog forget about alternatives generated by **everything above it in its clause**. In the case of factorial, above the exclamation mark is just the head of the clause. Therefore, Prolog forgets about all other alternative clauses for factorial.
+
+The following code illustrates a more complex situation:
+</div>
+
+<div class="nb-cell program" name="p15">
+a :- writeln(a1), b.
+a :- writeln(a2).
+
+b :- writeln(b1), c, writeln('!'), !, d.
+b :- writeln(b2).
+
+c :- writeln(c1).
+c :- writeln(c2).
+
+d :- writeln(d1).
+d :- writeln(d2).
+</div>
+
+<div class="nb-cell markdown" name="md54">
+Analyze the code above and then look at the results of the following query:
+</div>
+
+<div class="nb-cell query" name="q24">
+a.
+</div>
+
+<div class="nb-cell markdown" name="md55">
+The first result is a straightforward traversal of the computation path: =|a1 -&gt; b1 -&gt; c1 -&gt; ! -&gt; d1|=.
+
+Consistent with what we discussed earlier: the exclamation mark only removes alternatives generated above it in its own clause, namely alternatives `c2` and `b2`.
+It does not remove alternatives below it, i.e., `d2` (the second result);
+nor those before its clause, in this case, `a2` (the third result).
+</div>
+
+<div class="nb-cell markdown" name="md9">
+### Practical Considerations:
+
+The cut operator allows for code optimization by removing unnecessary choice points and code duplicates, but it has two major drawbacks:
+
+  - The code becomes significantly more sensitive to the order of clauses. The 'else' branch must always be the last clause belonging to the predicate. Changing the order of clauses containing the exclamation mark will change the results. This makes the code less declarative. Below is an example of a broken factorial predicate:
+</div>
+
+<div class="nb-cell program" name="p17">
+factorial(X,W) :- 
+    PX is X - 1,
+    factorial(PX, PW),
+    W is PW * X.
+factorial(0,1) :- !.
+</div>
+
+<div class="nb-cell query" name="q25">
+factorial(5,X).
+</div>
+
+<div class="nb-cell markdown" name="md56">
+- The code using the cut operator ceases to be reversible. Intuitively, removing a branch in one direction of computation makes it impossible to start computations 'from the end'. Below is an example of a broken predicate calculating the length of a list:
+</div>
+
+<div class="nb-cell program" name="p16">
+list_length([], 0) :- !.
+list_length([_|T], D) :-
+    list_length(T, PD),
+    D is PD + 1.
+</div>
+
+<div class="nb-cell query" name="q4">
+list_length(X, 5).
+</div>
+
+<div class="nb-cell markdown" name="md10">
+Effectively, using =|!|= is **discouraged**. If you want to get just a single result of a query and remove the choice points, use `once/1` discussed in another lesson. 
+</div>
+
+</div>

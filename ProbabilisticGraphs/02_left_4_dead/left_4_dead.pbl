@@ -1,0 +1,30 @@
+path(X,Y) :- edge(X,Y).
+path(X,Z) :- edge(X,Y), Y \= Z, path(Y,Z).
+
+0.5::edge(mall, gas_station).
+0.6::edge(mall, radio).
+0.7::edge(gas_station, near_car).
+0.4::edge(gas_station, far_car).
+0.5::edge(near_car, far_car).
+0.3::edge(near_car, working_car).
+0.7::edge(far_car, working_car).
+0.8::edge(working_car, highway).
+0.4::edge(radio, roof).
+0.2::edge(roof, helicopter).
+0.99::edge(helicopter, flying_military_fortress).
+
+?::go_gas_station.
+?::go_near_car.
+?::go_switch_car.
+
+\+edge(mall, radio) :- go_gas_station.
+\+edge(gas_station, far_car) :- go_near_car.
+\+edge(near_car, working_car) :- go_switch_car.
+
+\+edge(mall, gas_station) :- \+go_gas_station.
+\+edge(gas_station, near_car) :- \+go_near_car.
+\+edge(near_car, far_car) :- \+go_switch_car.
+
+
+utility(path(mall, flying_military_fortress), 100).
+utility(path(mall, highway), 50).

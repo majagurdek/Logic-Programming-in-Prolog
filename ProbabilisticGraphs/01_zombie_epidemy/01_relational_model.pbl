@@ -1,0 +1,23 @@
+human(X) :- between(1, 7, X).
+0.1::contact(X,Y) :- human(X), human(Y), X \= Y.
+
+% TODO:
+% define (timeless) relation model of the epidemy
+% 1. define three ways to get infected, first of them 
+%    is to be initially infected
+% 2. define impact of being resistant on the infections
+% tip. bobot will use 01_query.que query and evidence.evi evidence
+
+infected(X):- initially_infected(X).
+infected(X):- infected_by_contact(X).
+infected(X):- infected_by_air(X).
+
+
+0.25::initially_infected(X):- human(X).
+0.6::infected_by_contact(X):- contact(X,Y), infected(Y).
+0.1::infected_by_air(X):- human(X).
+
+
+0.05::resistant(X):- human(X).
+\+infected_by_air(X):- resistant(X).
+0.5::\+infected_by_contact(X):- resistant(X).

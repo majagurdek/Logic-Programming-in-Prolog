@@ -1,0 +1,6 @@
+% TODO:
+% - calcium treats osteoporosis (let's say with 15% effectiveness)
+% - bisphosphonates also treat osteoporosis (let's say with 85% effectiveness)
+% - if you take both:
+%   * calcium still works, but is less effective (let's say 50% weaker)
+%   * bisphosphonates do not work at all

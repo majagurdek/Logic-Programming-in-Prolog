@@ -1,0 +1,20 @@
+% put here a bayesian network with probabilities as defined in the instructions
+
+0.01::visited_asia.
+0.5::smoker.
+0.05::tuberculosis :- visited_asia.
+0.01::tuberculosis :- \+visited_asia.
+0.1::lung_cancer :- smoker.
+0.01::lung_cancer :- \+smoker.
+0.6::bronchitis :- smoker.
+0.3::bronchitis :- \+smoker.
+1.0::e :- tuberculosis, lung_cancer.
+1.0::e :- \+tuberculosis, lung_cancer.
+1.0::e :- tuberculosis, \+lung_cancer.
+0.0::e :- \+tuberculosis, \+lung_cancer.
+0.98::xray_positive :- e.
+0.05::xray_positive :- \+e.
+0.9::dyspnea :- e, bronchitis.
+0.7::dyspnea :- e, \+bronchitis.
+0.8::dyspnea :- \+e, bronchitis.
+0.1::dyspnea :- \+e, \+bronchitis.

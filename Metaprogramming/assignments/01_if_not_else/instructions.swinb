@@ -1,0 +1,88 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Beyond the `and` and `or`
+</div>
+
+<div class="nb-cell markdown" name="md5">
+Today's task is to extend the Prolog syntax with two constructs:
+
+  1. not entirely new but invaluable, "negation"
+  2. something that we often miss in Prolog, the "if-else" conditional statement
+</div>
+
+<div class="nb-cell markdown" name="md7">
+### Negation
+</div>
+
+<div class="nb-cell markdown" name="md8">
+To implement negation, we'll need two elements: `call/1` and the cut operator =|!|=.
+
+The definition of negation `neg/1` is as follows:
+
+    - if at least one result is found for the query, the negation fails
+    - otherwise, the negation succeeds
+
+Below is a space for the implementation of negation and two test queries:
+</div>
+
+<div class="nb-cell program" data-background="true" name="p3">
+</div>
+
+<div class="nb-cell query" name="q2">
+% should be false
+neg(5&gt;4).
+</div>
+
+<div class="nb-cell query" name="q3">
+% should be true
+neg(4&gt;5).
+</div>
+
+<div class="nb-cell markdown" name="md2">
+PS Obviously, the buil-in negation is written using operator: `\+`.
+</div>
+
+<div class="nb-cell markdown" name="md6">
+### If Else
+
+The goal of the next task is to implement the predicate `ifelse/3`, where the arguments are:
+
+    1. a query representing the condition
+    2. a query to be executed if the conditional query *succeeds*
+    3. a query to be executed if the conditional query *fails*
+</div>
+
+<div class="nb-cell markdown" name="md9">
+The construction itself does not differ significantly from negation. Again, we need to use the cut operator and `call/1`. Optionally, you can use the disjunction operator.
+
+Below is a space for the predicate and two test queries:
+</div>
+
+<div class="nb-cell program" name="p4">
+
+</div>
+
+<div class="nb-cell query" name="q4">
+ifelse(5 &gt; 4, writeln(true), writeln(false))
+</div>
+
+<div class="nb-cell query" name="q5">
+ifelse(4 &gt; 5, writeln(true), writeln(false))
+</div>
+
+<div class="nb-cell markdown" name="md3">
+PS Prolog has a built-in conditional operator =|-&gt;|=. It is used as follows:
+
+==
+(Condition -&gt; TrueBranch ; FalseBranch)
+==
+
+For example:
+</div>
+
+<div class="nb-cell query" name="q1">
+(4 &gt; 5 -&gt;  writeln(true) ; writeln(false)).
+</div>
+
+</div>
